@@ -1,5 +1,6 @@
 import React, { useReducer } from "react";
 import TabContent from "../TabContent/TabContent";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Tab from "../Tab/Tab";
 import "./ScrollableTabs.css";
 
@@ -57,6 +58,7 @@ const reducer = (state, action) => {
       const lastIndex = state.tabs.length - 1;
       newFirstTab =
         state.tabs.length >= 4 ? state.tabs[lastIndex - 2].id : state.firstTab;
+      if (state.tabs.length > 9) return state;
       return {
         ...state,
         tabs: [...state.tabs, newTab],
@@ -127,6 +129,53 @@ const reducer = (state, action) => {
         firstTab: newFirstTab,
         currentTab: newCurrentTab,
       };
+    case "REORDER_LIST":
+      const sourceTab = state.tabs.find((d) => d.id === action.id);
+      const sIndex = state.tabs.findIndex((d) => d.id === action.id);
+      let dIndex = sIndex + (action.dIdx - action.sIdx);
+      if (action.sIdx < action.dIdx) {
+        newFirstTab =
+          state.firstTab === sourceTab.id
+            ? state.tabs[sIndex + 1].id
+            : state.firstTab;
+        newLastTab =
+          state.lastTab === state.tabs[dIndex].id
+            ? sourceTab.id
+            : state.lastTab;
+
+        return {
+          ...state,
+          tabs: [
+            ...state.tabs.slice(0, sIndex),
+            ...state.tabs.slice(sIndex + 1, dIndex + 1),
+            sourceTab,
+            ...state.tabs.slice(dIndex + 1),
+          ],
+          firstTab: newFirstTab,
+          lastTab: newLastTab,
+        };
+      }
+      newLastTab =
+        state.lastTab === sourceTab.id
+          ? state.tabs[sIndex - 1].id
+          : state.lastTab;
+      newFirstTab =
+        state.firstTab === state.tabs[dIndex].id
+          ? sourceTab.id
+          : state.firstTab;
+
+      return {
+        ...state,
+        tabs: [
+          ...state.tabs.slice(0, dIndex),
+          sourceTab,
+          ...state.tabs.slice(dIndex, sIndex ),
+          ...state.tabs.slice(sIndex + 1),
+        ],
+        firstTab: newFirstTab,
+        lastTab: newLastTab,
+      };
+
     default:
       return state;
   }
@@ -150,45 +199,85 @@ function ScrollableTabs() {
   };
 
   const handleDeleteTab = (id) => {
-    dispatch({ type: "DELETE_TAB", id });
+    if (state.tabs.length > 1) {
+      dispatch({ type: "DELETE_TAB", id });
+    }
   };
+  console.log(state);
+  const handleDragEnd = (result) => {
+    console.log(result);
+    const { draggableId, source, destination } = result;
+    if (!destination) return;
+    if (destination.index === source.index) return;
+    dispatch({
+      type: "REORDER_LIST",
+      dIdx: destination.index,
+      sIdx: source.index,
+      id: draggableId,
+    });
+  };
+
+  const len = state.tabs.length;
 
   return (
     <div className="scrollableTabs">
       <div className="scrollableTabs__row1">
-        <div
-          className="scrollableTabs__chevron"
-          onClick={() => dispatch({ type: "LEFT_CHEVRON" })}
-        >
-          {" "}
-          &lt;{" "}
-        </div>
-
-        <div className="scrollableTabs__container" onClick={handleClick}>
-          {tabGroup().map((idx) => (
-            <Tab
-              key={state.tabs[idx].id}
-              onDelete={handleDeleteTab}
-              data={state.tabs[idx]}
-            />
-          ))}
-        </div>
-
-        <div
-          className="scrollableTabs__addBtn"
-          onClick={() => dispatch({ type: "ADD_TAB" })}
-        >
-          {" "}
-          +{" "}
-        </div>
-
-        <div
-          className="scrollableTabs__chevron"
-          onClick={() => dispatch({ type: "RIGHT_CHEVRON" })}
-        >
-          {" "}
-          &gt;{" "}
-        </div>
+        {state.firstTab !== state.tabs[0].id && (
+          <div
+            className="scrollableTabs__chevron scrollableTabs--left"
+            onClick={() => dispatch({ type: "LEFT_CHEVRON" })}
+          >
+            {" "}
+            &lt;{" "}
+          </div>
+        )}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable
+            droppableId="scrollableTabs__container"
+            direction="horizontal"
+          >
+            {(provided) => (
+              <div
+                className="scrollableTabs__container"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                onClick={handleClick}
+              >
+                {tabGroup().map((idx, index) => {
+                  return (
+                    <Tab
+                      key={state.tabs[idx].id}
+                      len={len}
+                      currentTab={state.currentTab}
+                      onDelete={handleDeleteTab}
+                      data={state.tabs[idx]}
+                      index={index}
+                    />
+                  );
+                })}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+        {len < 10 && (
+          <div
+            className="scrollableTabs__addBtn"
+            onClick={() => dispatch({ type: "ADD_TAB" })}
+          >
+            {" "}
+            +{" "}
+          </div>
+        )}
+        {state.lastTab !== state.tabs[len - 1].id && (
+          <div
+            className="scrollableTabs__chevron scrollableTabs--right"
+            onClick={() => dispatch({ type: "RIGHT_CHEVRON" })}
+          >
+            {" "}
+            &gt;{" "}
+          </div>
+        )}
       </div>
 
       <TabContent content={state.content} />

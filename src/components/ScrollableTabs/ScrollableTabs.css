@@ -1,21 +1,37 @@
 .scrollableTabs {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 .scrollableTabs__row1 {
   display: flex;
-  justify-content: center;
+  flex: 1;
 }
 .scrollableTabs__container {
   display: flex;
+  flex: 1;
 }
 .scrollableTabs__chevron {
   padding: 10px;
-  background-color: red;
+  font-weight: bold;
+  color: black;
+  cursor: default;
+  background-color: rgb(255,193,7);
   margin: 0 5px;
 }
+.scrollableTabs--left {
+  border-top-left-radius: 12px;
+}
+.scrollableTabs--right {
+  border-top-right-radius: 12px;
+}
 .scrollableTabs__addBtn {
+  cursor: default;
   padding: 10px;
+  color: white;
+  font-weight: bold;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
   background-color: blue;
   margin-left: 5px;
 }
