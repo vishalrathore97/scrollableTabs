@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/scrollableTabs/static/css/main.e65525e6.chunk.css",
+    "main.js": "/scrollableTabs/static/js/main.022cae71.chunk.js",
+    "main.js.map": "/scrollableTabs/static/js/main.022cae71.chunk.js.map",
+    "runtime-main.js": "/scrollableTabs/static/js/runtime-main.53c76bc7.js",
+    "runtime-main.js.map": "/scrollableTabs/static/js/runtime-main.53c76bc7.js.map",
+    "static/js/2.4990535c.chunk.js": "/scrollableTabs/static/js/2.4990535c.chunk.js",
+    "static/js/2.4990535c.chunk.js.map": "/scrollableTabs/static/js/2.4990535c.chunk.js.map",
+    "static/js/3.0c9dd6c0.chunk.js": "/scrollableTabs/static/js/3.0c9dd6c0.chunk.js",
+    "static/js/3.0c9dd6c0.chunk.js.map": "/scrollableTabs/static/js/3.0c9dd6c0.chunk.js.map",
+    "index.html": "/scrollableTabs/index.html",
+    "static/css/main.e65525e6.chunk.css.map": "/scrollableTabs/static/css/main.e65525e6.chunk.css.map",
+    "static/js/2.4990535c.chunk.js.LICENSE.txt": "/scrollableTabs/static/js/2.4990535c.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.53c76bc7.js",
+    "static/js/2.4990535c.chunk.js",
+    "static/css/main.e65525e6.chunk.css",
+    "static/js/main.022cae71.chunk.js"
+  ]
+}
