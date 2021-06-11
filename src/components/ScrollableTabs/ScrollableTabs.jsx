@@ -22,7 +22,7 @@ const initialState = {
   content: "Tab 1 content",
 };
 const reducer = (state, action) => {
-  let index;
+  let index, newFirstTab, newLastTab, newCurrentTab, newContent;
   switch (action.type) {
     case "TAB_CLICK":
       index = state.tabs.findIndex((d) => d.id === action.id);
@@ -55,7 +55,7 @@ const reducer = (state, action) => {
       const tabNo = state.createdTabs + 1;
       const newTab = { id: `Tab ${tabNo}`, content: `Tab ${tabNo} content` };
       const lastIndex = state.tabs.length - 1;
-      const newFirstTab =
+      newFirstTab =
         state.tabs.length >= 4 ? state.tabs[lastIndex - 2].id : state.firstTab;
       return {
         ...state,
@@ -67,8 +67,66 @@ const reducer = (state, action) => {
         createdTabs: tabNo,
       };
     case "DELETE_TAB":
-      index = state.tabs.findIndex((d) => d.id === state.lastTab);
-      return { ...state, lastTab: state.tabs[index] };
+      const firstTabIndex = state.tabs.findIndex(
+        (d) => d.id === state.firstTab
+      );
+      const lastTabIndex = state.tabs.findIndex((d) => d.id === state.lastTab);
+      const currentTabIndex = state.tabs.findIndex(
+        (d) => d.id === state.currentTab
+      );
+      const len = state.tabs.length;
+      if (len <= 4) {
+        newFirstTab =
+          action.id === state.firstTab
+            ? state.tabs[firstTabIndex + 1].id
+            : state.firstTab;
+        newLastTab =
+          action.id === state.lastTab
+            ? state.tabs[lastTabIndex - 1].id
+            : state.lastTab;
+      } else {
+        if (action.id === state.firstTab && lastTabIndex < len - 1) {
+          newFirstTab = state.tabs[firstTabIndex + 1].id;
+          newLastTab = state.tabs[lastTabIndex + 1].id;
+        } else if (action.id === state.firstTab) {
+          newFirstTab = state.tabs[firstTabIndex - 1].id;
+        }
+        if (action.id === state.lastTab && lastTabIndex === len - 1) {
+          newLastTab = state.tabs[lastTabIndex - 1].id;
+          newFirstTab = state.tabs[firstTabIndex - 1].id;
+        } else if (action.id === state.lastTab) {
+          newLastTab = state.tabs[lastTabIndex + 1].id;
+        }
+        if (action.id !== state.lastTab && lastTabIndex === len - 1) {
+          newLastTab = state.lastTab;
+        } else if (action.id !== state.lastTab) {
+          newLastTab = state.tabs[lastTabIndex + 1].id;
+        }
+        if (action.id !== state.firstTab && lastTabIndex === len - 1) {
+          newFirstTab = state.tabs[firstTabIndex - 1].id;
+        } else if (action.id !== state.firstTab) {
+          newFirstTab = state.firstTab;
+        }
+      }
+      if (action.id === state.currentTab && currentTabIndex === len - 1) {
+        newCurrentTab = state.tabs[currentTabIndex - 1].id;
+        newContent = state.tabs[currentTabIndex - 1].content;
+      } else if (action.id === state.currentTab) {
+        newCurrentTab = state.tabs[currentTabIndex + 1].id;
+        newContent = state.tabs[currentTabIndex + 1].content;
+      } else {
+        newCurrentTab = state.currentTab;
+        newContent = state.content;
+      }
+      index = state.tabs.findIndex((d) => d.id === action.id);
+      return {
+        ...state,
+        tabs: [...state.tabs.slice(0, index), ...state.tabs.slice(index + 1)],
+        content: newContent,
+        lastTab: newLastTab,
+        firstTab: newFirstTab,
+        currentTab: newCurrentTab,
+      };
     default:
       return state;
   }
@@ -85,40 +143,54 @@ function ScrollableTabs() {
 
   const handleClick = (e) => {
     const target = e.target;
-    if (target.className === "tab") {
+    if (target.className === "tab__title") {
       const id = target.innerText;
       dispatch({ type: "TAB_CLICK", id });
     }
   };
 
-  const handleLeftChevron = () => {
-    dispatch({ type: "LEFT_CHEVRON" });
-  };
-
-  const handleRightChevron = () => {
-    dispatch({ type: "RIGHT_CHEVRON" });
-  };
-
-  const handleAddTab = () => {
-    dispatch({ type: "ADD_TAB" });
-  };
-
-  const handleDeleteTab = () => {
-    dispatch({ type: "DELETE_TAB" });
+  const handleDeleteTab = (id) => {
+    dispatch({ type: "DELETE_TAB", id });
   };
 
   return (
     <div className="scrollableTabs">
-      {/* tab component */}
-      <div onClick={handleLeftChevron}> &lt; </div>
-      <div onClick={handleClick}>
-        {tabGroup().map((idx) => (
-          <Tab key={state.tabs[idx].id} data={state.tabs[idx]} />
-        ))}
+      <div className="scrollableTabs__row1">
+        <div
+          className="scrollableTabs__chevron"
+          onClick={() => dispatch({ type: "LEFT_CHEVRON" })}
+        >
+          {" "}
+          &lt;{" "}
+        </div>
+
+        <div className="scrollableTabs__container" onClick={handleClick}>
+          {tabGroup().map((idx) => (
+            <Tab
+              key={state.tabs[idx].id}
+              onDelete={handleDeleteTab}
+              data={state.tabs[idx]}
+            />
+          ))}
+        </div>
+
+        <div
+          className="scrollableTabs__addBtn"
+          onClick={() => dispatch({ type: "ADD_TAB" })}
+        >
+          {" "}
+          +{" "}
+        </div>
+
+        <div
+          className="scrollableTabs__chevron"
+          onClick={() => dispatch({ type: "RIGHT_CHEVRON" })}
+        >
+          {" "}
+          &gt;{" "}
+        </div>
       </div>
-      <div onClick={handleAddTab}> + </div>
-      <div onClick={handleRightChevron}> &gt; </div>
-      {/* content component */}
+
       <TabContent content={state.content} />
     </div>
   );

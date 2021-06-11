@@ -1,0 +1,21 @@
+.scrollableTabs {
+  display: flex;
+  flex-direction: column;
+}
+.scrollableTabs__row1 {
+  display: flex;
+  justify-content: center;
+}
+.scrollableTabs__container {
+  display: flex;
+}
+.scrollableTabs__chevron {
+  padding: 10px;
+  background-color: red;
+  margin: 0 5px;
+}
+.scrollableTabs__addBtn {
+  padding: 10px;
+  background-color: blue;
+  margin-left: 5px;
+}

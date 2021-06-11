@@ -1,0 +1,9 @@
+.tab {
+  display: flex;
+  padding: 10px;
+  background-color: gray;
+  margin-right: 2px;
+}
+.tab__title {
+  margin-right: 5px;
+}
